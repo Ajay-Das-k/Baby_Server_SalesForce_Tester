@@ -3,12 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home Page</title>
+    <title>Salesforce OAuth2 Login</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.10.1/qs.min.js"></script>
 </head>
 <body>
-    <h1>Welcome to the Home Page of Babby Server Hi Ajay</h1>
+    <h1>Salesforce OAuth2 Login</h1>
     <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script> 
 
-    <dotlottie-player src="https://lottie.host/acb1c3c9-cea1-4ee8-ae8a-478d260689c6/wM19xUPgEb.json" background="transparent" speed="1" style="width: 800px; height: 800px;" loop autoplay></dotlottie-player>
+    <dotlottie-player src="https://lottie.host/ee5094ac-a6df-4d37-819b-ae7ec52676a3/lf6bfPWi7m.json" background="transparent" speed="1" style="width: 500px; height: 500px;" loop autoplay></dotlottie-player>
+    <button id="loginButton">Login with Salesforce</button>
+
+    <script>
+        document.getElementById('loginButton').addEventListener('click', function() {
+            const clientId = '3MVG9GCMQoQ6rpzS8ofRkzf55IhDQxhthym58bqDIuVOJNEoQzAUtKcomLtVEVCCKBEYLoihBRayAMeTQedVc';
+            const redirectUri = 'https://ajustechhub-dev-ed.develop.lightning.force.com/'; // Replace with your actual redirect URI
+            const responseType = 'token';
+            const scope = 'full';
+            const state = 'some_random_state';
+
+            const authUrl = `https://login.salesforce.com/services/oauth2/authorize?response_type=${responseType}&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}`;
+
+            window.location.href = authUrl;
+        });
+    </script>
 </body>
 </html>

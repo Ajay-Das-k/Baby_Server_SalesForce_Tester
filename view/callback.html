@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OAuth Callback</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.10.1/qs.min.js"></script>
+</head>
+<body >
+   
+    <h1>OAuth Callback</h1>
+    <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script> 
+
+    <dotlottie-player src="https://lottie.host/5476084d-d6d5-4baf-b5a2-876d2628363b/8rll48Mwdf.json" background="transparent" speed="1" style="width: 300px; height: 300px;" loop autoplay></dotlottie-player>
+    <div id="result"></div>
+   
+    <script>
+        function parseHashParams() {
+            const hash = window.location.hash.substr(1);
+            return Qs.parse(hash);
+        }
+
+        function displayTokenInfo(params) {
+            console.log('Access Token:', params.access_token);
+            console.log('Instance URL:', params.instance_url);
+            console.log('ID:', params.id);
+            console.log('Issued At:', params.issued_at);
+            console.log('Signature:', params.signature);
+
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `
+                <p>Access Token: ${params.access_token}</p>
+                <p>Instance URL: ${params.instance_url}</p>
+                <p>ID: ${params.id}</p>
+                <p>Issued At: ${params.issued_at}</p>
+                <p>Signature: ${params.signature}</p>
+            `;
+        }
+
+        window.onload = function() {
+            const params = parseHashParams();
+            if (params.access_token) {
+                displayTokenInfo(params);
+                localStorage.setItem('access_token', params.access_token);
+                localStorage.setItem('instance_url', params.instance_url);
+                if (params.refresh_token) {
+                    localStorage.setItem('refresh_token', params.refresh_token);
+                }
+            } else if (params.error) {
+                console.error('OAuth2 Error:', params.error, params.error_description);
+                document.getElementById('result').innerText = `Error: ${params.error} - ${params.error_description}`;
+            } else {
+                console.error('Error: No access token found');
+                document.getElementById('result').innerText = 'Error: No access token found';
+            }
+        };
+
+        async function refreshToken(refreshToken) {
+            const tokenUrl = 'https://login.salesforce.com/services/oauth2/token';
+            const clientId = '3MVG9GCMQoQ6rpzS8ofRkzf55IhDQxhthym58bqDIuVOJNEoQzAUtKcomLtVEVCCKBEYLoihBRayAMeTQedVc';
+            const clientSecret = '834178B161C72B59B873E5071F819AD06DD33D8C383D414044CFA309E40FA548';
+
+            const response = await fetch(tokenUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `grant_type=refresh_token&client_id=${clientId}&client_secret=${clientSecret}&refresh_token=${refreshToken}`
+            });
+
+            if (!response.ok) {
+                throw new Error('Token refresh failed');
+            }
+
+            const data = await response.json();
+            displayTokenInfo(data);
+            localStorage.setItem('access_token', data.access_token);
+            localStorage.setItem('instance_url', data.instance_url);
+        }
+
+        function manualTokenRefresh() {
+            const refreshToken = localStorage.getItem('refresh_token');
+            if (refreshToken) {
+                refreshToken(refreshToken).then(data => {
+                    console.log('Token refreshed', data);
+                }).catch(error => {
+                    console.error('Error refreshing token', error);
+                });
+            } else {
+                console.log('No refresh token available');
+            }
+        }
+
+        // Example: Add event listener to a button for manual token refresh
+        // document.getElementById('refreshButton').addEventListener('click', manualTokenRefresh);
+    </script>
+</body>
+</html>

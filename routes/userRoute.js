@@ -9,5 +9,8 @@ userRoute.use(express.urlencoded({ extended: true }));
 userRoute.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../view", "index.html"));
 });
+userRoute.get("/callBack", (req, res) => {
+  res.sendFile(path.join(__dirname, "../view", "callback.html"));
+});
 
 module.exports = userRoute;
